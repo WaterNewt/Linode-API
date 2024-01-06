@@ -8,6 +8,7 @@ setup(
     author_email="waternewtinfo@gmail.com",
     url="https://github.com/WaterNewt/Linode-API",
     download_url="https://github.com/WaterNewt/Linode-API/releases/tag/v1.0.0",
+    license='MIT',
     version='1.0.0',
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
