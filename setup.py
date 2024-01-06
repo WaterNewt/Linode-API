@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='mylinode-api',
+    name='mylinode_api',
     description="A module to simplify Linode interactions.",
     author_email="waternewtinfo@gmail.com",
     version='1.0.0',
