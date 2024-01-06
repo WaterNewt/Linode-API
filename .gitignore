@@ -1,6 +1,6 @@
-*
-!.gitignore
-!src
-!src/mylinode_api
-!*.md
-!setup.py
+__pycache__
+build
+dist
+jsons
+*.env
+test.py
