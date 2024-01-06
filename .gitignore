@@ -1,6 +1,6 @@
 *
 !.gitignore
 !src
-!src/*
+!src/mylinode_api
 !*.md
 !setup.py
