@@ -4,3 +4,4 @@ dist
 jsons
 *.env
 test.py
+src/mylinode_api.egg-info
