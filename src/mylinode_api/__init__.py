@@ -415,3 +415,50 @@ class linodeClient:
             sys.exit(1)
         else:
             return True
+        
+    # IP Methods:
+    
+    def allocateIPv4(self, linodeID:int, public:bool, iptype="ipv4"):
+        data = {"public": public, "type": iptype}
+        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips", headers=self.authHeader, json=data)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
+        
+    def deleteIPv4(self, linodeID:int, address:str):
+        response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeClient())}/ips/{str(address)}")
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return True
+        
+    def findIP(self, linodeID:int, address:str):
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips/{str(address)}", headers=self.authHeader)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
+        
+    def RDNSUpdateIP(self, linodeID:int, address:str, rdns:str):
+        response = requests.put(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips/{address}", headers=self.authHeader, json={"rdns": rdns})
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
