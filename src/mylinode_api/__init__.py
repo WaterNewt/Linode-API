@@ -346,3 +346,72 @@ class linodeClient:
             sys.exit(1)
         else:
             return response.json()
+        
+    def deleteDisk(self, linodeID:int, diskID:int):
+        response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return True
+        
+    def findDisk(self, linodeID:int, diskID:int):
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
+    
+    def updateDisk(self, linodeID:int, diskID:int, **kwargs):
+        data = kwargs
+        response = requests.put(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader, json=data)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
+        
+    def cloneDisk(self, linodeID:int, diskID:int):
+        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/clone", headers=self.authHeader)
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return response.json()
+        
+    def resetPassDisk(self, linodeID:int, diskID:int, password:str):
+        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/password", headers=self.authHeader, json={"password": str(password)})
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return True
+        
+    def resizeDisk(self, linodeID:int, diskID:int, size:int):
+        if not size>=1:
+            raise ValueError("Size has to be bigger or equals to one.")
+        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/resize", headers=self.authHeader, json={"size": size})
+        errors = []
+        if 'errors' in response.json():
+            for i in response.json()['errors']:
+                errors.append(i['reason'])
+            print('\n'.join(errors))
+            sys.exit(1)
+        else:
+            return True
