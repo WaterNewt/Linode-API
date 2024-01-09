@@ -397,10 +397,27 @@ class linodeClient:
     # Disk methods:
     
     def getDisks(self, linodeID:int):
+        """Get all the disks that are in a linode.
+
+        Args:
+            linodeID: The ID of the linode the disk is in.
+
+        Returns:
+            Returns response json.
+        """
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks", headers=self.authHeader)
         return handleRequestError(response)
         
     def createDisk(self, linodeID:int, size:int, **kwargs):
+        """Create disk for linode
+
+        Args:
+            linodeID: The ID of the linode the disk will be created in.
+            size: The size of the disk.
+
+        Returns:
+            Returns response json.
+        """
         data = {"size": size}
         for i, (k, v) in enumerate(kwargs.items()):
             if v:
@@ -409,10 +426,28 @@ class linodeClient:
         return handleRequestError(response)
         
     def deleteDisk(self, linodeID:int, diskID:int):
+        """Delete disk in linode.
+
+        Args:
+            linodeID: The ID of the linode the disk is in.
+            diskID: The ID of the disk that will be deleted.
+
+        Returns:
+            true if success.
+        """
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
         return handleRequestError(response)
         
     def findDisk(self, linodeID:int, diskID:int):
+        """Find disk in linode.
+
+        Args:
+            linodeID: The ID of the linode the disk is in.
+            diskID: The ID of the disk.
+
+        Returns:
+            Returns json info about the disk.
+        """
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
         return handleRequestError(response)
     
