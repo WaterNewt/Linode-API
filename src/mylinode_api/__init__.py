@@ -152,10 +152,6 @@ class linodeClient:
         
     # Snapshot methods:
         
-    def createSnapshot(self, linodeID:int, label:str):
-        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups", headers=self.authHeader, json={"label": label})
-        return handleRequestError(response)
-        
     # Configuration methods:
         
     def getConfigs(self, linodeID:int):
@@ -246,5 +242,45 @@ class linodeClient:
     # Kernel Methods:
     
     def getKernels(self):
-        response = requests.get("https://api.linode.com/v4/linode/kernels")
+        response = requests.get("https://api.linode.com/v4/linode/kernels", headers=self.authHeader)
+        return handleRequestError(response)
+    
+    def findkernel(self, kernelID:int):
+        response = requests.get(f"https://api.linode.com/v4/linode/kernels/{str(kernelID)}", headers=self.authHeader)
+        return handleRequestError(response)
+    
+    # Image Methods:
+    
+    def createImage(self, diskID:int, **kwargs):
+        data = {"disk_id": diskID}
+        for i, (k, v) in enumerate(kwargs.items()):
+            if v:
+                data[k] = v
+        response = requests.post("https://api.linode.com/v4/images", headers=self.authHeader, json=data)
+        return handleRequestError(response)
+    
+    def uploadImage(self, label:str, region:str, **kwargs):
+        data = {"label": label, "region": region}
+        for i, (k, v) in enumerate(kwargs.items()):
+            if v:
+                data[k] = v
+        response = requests.post("https://api.linode.com/v4/images/upload", headers=self.authHeader, json=data)
+        return handleRequestError(response)
+    
+    def deleteImage(self, imageID:str):
+        response = requests.delete(f"https://api.linode.com/v4/images/{str(imageID)}", headers=self.authHeader)
+        return handleRequestError(response)
+    
+    def findImage(self, imageID:str):
+        response = requests.get(f"https://api.linode.com/v4/images/{str(imageID)}", headers=self.authHeader)
+        return handleRequestError(response)
+    
+    # Ohter Methods:
+        
+    def createSnapshot(self, linodeID:int, label:str):
+        response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups", headers=self.authHeader, json={"label": label})
+        return handleRequestError(response)
+    
+    def getFirewalls(self, linodeID:int):
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/firewalls", headers=self.authHeader)
         return handleRequestError(response)
