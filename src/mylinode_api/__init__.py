@@ -31,6 +31,16 @@ def keyByValue(dictionary: dict, value: any):
     ind=val_list.index(value)
     return key_list[ind]
 
+def handleRequestError(response):
+    if 'errors' in response.json():
+            for i in response.json()['errors']:
+                raise ValueError(str(i['reason']))
+    else:
+        if response.json() == {}:
+            return True
+        else:
+            return response.json()
+
 class linodeClient:
     def __init__(self, TOKEN) -> None:
         self.token = TOKEN
@@ -62,81 +72,32 @@ class linodeClient:
             if v:
                 data[k] = v
         response = requests.post("https://api.linode.com/v4/linode/instances", json=data, headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
     
     def deleteLinode(self, linodeID:int):
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
     
     def findLinode(self, linodeID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def updateLinode(self, linodeID:int, **kwargs):
         data = kwargs
         response = requests.put(f"https://api.linode.com/v4/linode/instances/{linodeID}", json=data, headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def bootLinode(self, linodeID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/boot", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def rebootLinode(self, linodeID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/reboot", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def resetPassLinode(self, linodeID:int, password:str):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/password", headers=self.authHeader, json={"root_pass": password})
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def rebuildLinode(self, linodeID:int, image:str, root_pass:str, **kwargs):
         data = {"image": image, "root_pass": root_pass}
@@ -144,131 +105,61 @@ class linodeClient:
             if v:
                 data[k] = v
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/rebuild", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def shutDownLinode(self, linodeID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/shutdown")
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def statisticsLinode(self, linodeID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/stats", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def cloneLinode(self, linodeID:int, **kwargs):
         data = kwargs
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/clone", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
+        
+    def volumeListLinode(self, linodeID:int):
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/volumes")
+        handleRequestError(response)
+        
+    def upgradeLinode(self, linodeID:int, **kwargs):
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{linodeID}/mutate")
         
     # Backup methods:
         
     def getBackups(self, linodeID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def cancelBackups(self, linodeID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups/cancel", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def enableBackups(self, linodeID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups/enable", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def findBackup(self, linodeID:int, backupID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups/{str(backupID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def restoreBackup(self, linodeID:int, backupID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups/{str(backupID)}/restore")
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     # Snapshot methods:
         
     def createSnapshot(self, linodeID:int, label:str):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/backups", headers=self.authHeader, json={"label": label})
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     # Configuration methods:
         
     def getConfigs(self, linodeID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/configs", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def createConfig(self, linodeID:int, devices:dict, label:str, **kwargs):
         data = {"devices": devices, "label": label}
@@ -276,61 +167,26 @@ class linodeClient:
             if v:
                 data[k] = v
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/configs", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def deleteConfig(self, linodeID:int, configID:int):
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/configs/{str(configID)}")
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def findConfig(self, linodeID:int, configID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/configs/{str(configID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def updateConfig(self, linodeID:int, configID:int, **kwargs):
         data = kwargs
         response = requests.put(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/configs/{str(configID)}", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     # Disk methods:
     
     def getDisks(self, linodeID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def createDisk(self, linodeID:int, size:int, **kwargs):
         data = {"size": size}
@@ -338,127 +194,50 @@ class linodeClient:
             if v:
                 data[k] = v
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks", self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def deleteDisk(self, linodeID:int, diskID:int):
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def findDisk(self, linodeID:int, diskID:int):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
     
     def updateDisk(self, linodeID:int, diskID:int, **kwargs):
         data = kwargs
         response = requests.put(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def cloneDisk(self, linodeID:int, diskID:int):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/clone", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def resetPassDisk(self, linodeID:int, diskID:int, password:str):
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/password", headers=self.authHeader, json={"password": str(password)})
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def resizeDisk(self, linodeID:int, diskID:int, size:int):
         if not size>=1:
             raise ValueError("Size has to be bigger or equals to one.")
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/disks/{str(diskID)}/resize", headers=self.authHeader, json={"size": size})
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     # IP Methods:
     
     def allocateIPv4(self, linodeID:int, public:bool, iptype="ipv4"):
         data = {"public": public, "type": iptype}
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips", headers=self.authHeader, json=data)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def deleteIPv4(self, linodeID:int, address:str):
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeClient())}/ips/{str(address)}")
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return True
+        handleRequestError(response)
         
     def findIP(self, linodeID:int, address:str):
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips/{str(address)}", headers=self.authHeader)
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
         
     def RDNSUpdateIP(self, linodeID:int, address:str, rdns:str):
         response = requests.put(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/ips/{address}", headers=self.authHeader, json={"rdns": rdns})
-        errors = []
-        if 'errors' in response.json():
-            for i in response.json()['errors']:
-                errors.append(i['reason'])
-            print('\n'.join(errors))
-            sys.exit(1)
-        else:
-            return response.json()
+        handleRequestError(response)
