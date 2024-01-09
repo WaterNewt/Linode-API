@@ -43,11 +43,21 @@ def handleRequestError(response):
 
 class linodeClient:
     def __init__(self, TOKEN) -> None:
+        """Linode Client
+
+        Args:
+            TOKEN: Specify token from cloud manager.
+        """
         self.token = TOKEN
         self.authHeader = {"Authorization": f"Bearer {self.token}"}
         
     # Linode methods:
     def getLinodes(self):
+        """Get list of linodes if you have `read` permissions.
+
+        Returns:
+            Returns a list of your linodes.
+        """
         linodesList = []
         linodesListRequest = requests.get("https://api.linode.com/v4/linode/instances", headers=self.authHeader).json()
         
@@ -56,6 +66,20 @@ class linodeClient:
         return linodesList
     
     def createLinode(self, region:str, type:str, image:str, root_pass:str, **kwargs):
+        """Create a new linode server if you have `write` permissions.
+
+        Args:
+            region: Region of server
+            type: Server plan
+            image: The linux image of the server.
+            root_pass: The root password of the server.
+
+        Raises:
+            Will raise errors if region, type or/and image is not found.
+
+        Returns:
+            Returns the json response.
+        """
         if region not in getRegions():
             raise ValueError("Region not found or not available.")
         if type not in getTypes():
@@ -75,31 +99,93 @@ class linodeClient:
         return handleRequestError(response)
     
     def deleteLinode(self, linodeID:int):
+        """Delete Linode if you have `read_write` permissions.
+
+        Args:
+            linodeID: The ID of the linode that will be removed.
+
+        Returns:
+            Returns a boolean
+        """
         response = requests.delete(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}", headers=self.authHeader)
         return handleRequestError(response)
     
     def findLinode(self, linodeID:int):
+        """View Linode if you have `read` permissions.
+
+        Args:
+            linodeID: The LinodeID.
+
+        Returns:
+            Returns a dictionary of the found Linode.
+        """
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}", headers=self.authHeader)
         return handleRequestError(response)
         
     def updateLinode(self, linodeID:int, **kwargs):
+        """Update Linode if you have `read_write` permissions.
+
+        Args:
+            linodeID: The linode ID that will be updated.
+            kwargs: Other parameters (can be found in 
+            https://www.linode.com/docs/api/linode-instances/#linode-update
+            )
+
+        Returns:
+            Returns the response of the linode with the updated changes.
+        """
         data = kwargs
         response = requests.put(f"https://api.linode.com/v4/linode/instances/{linodeID}", json=data, headers=self.authHeader)
         return handleRequestError(response)
         
     def bootLinode(self, linodeID:int):
+        """Turn on the linode if you have `read_write` permissions.
+
+        Args:
+            linodeID: The linodeID that will be booted.
+
+        Returns:
+            Returns a boolean.
+        """
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/boot", headers=self.authHeader)
         return handleRequestError(response)
         
     def rebootLinode(self, linodeID:int):
+        """Restarts the linode if you have `read_write` permissions
+
+        Args:
+            linodeID: The linodeID that will be rebooted.
+
+        Returns:
+            _type_: _description_
+        """
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/reboot", headers=self.authHeader)
         return handleRequestError(response)
         
     def resetPassLinode(self, linodeID:int, password:str):
+        """Reset password of Linode if you have `read_write` permissions
+
+        Args:
+            linodeID: The linodeID that will be restarted
+            password: The new password of the linode.
+
+        Returns:
+            Returns a boolean.
+        """
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/password", headers=self.authHeader, json={"root_pass": password})
         return handleRequestError(response)
         
     def rebuildLinode(self, linodeID:int, image:str, root_pass:str, **kwargs):
+        """Rebuilds a Linode you have the `read_write` permission to modify.
+
+        Args:
+            linodeID: The linodeID
+            image: The new image of the server.
+            root_pass: The new password of the server.
+
+        Returns:
+            Returns a json response of the new linode.
+        """
         data = {"image": image, "root_pass": root_pass}
         for i, (k, v) in enumerate(kwargs.items()):
             if v:
@@ -108,24 +194,56 @@ class linodeClient:
         return handleRequestError(response)
         
     def shutDownLinode(self, linodeID:int):
+        """Stop the Linode server if you have `write` permission.
+
+        Args:
+            linodeID (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/shutdown")
         return handleRequestError(response)
         
     def statisticsLinode(self, linodeID:int):
+        """Gets the statistics of the linode if you have `read` permissions.
+
+        Args:
+            linodeID: The linodeID.
+
+        Returns:
+            Returns a json with the statistics.
+        """
         response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/stats", headers=self.authHeader)
         return handleRequestError(response)
         
     def cloneLinode(self, linodeID:int, **kwargs):
+        """Clones the linode into a new linode if you have `read_write` permissions.
+
+        Args:
+            linodeID: The linodeID that will be cloned.
+
+        Returns:
+            Returns a json of the new Linode.
+        """
         data = kwargs
         response = requests.post(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/clone", headers=self.authHeader, json=data)
         return handleRequestError(response)
         
     def volumeListLinode(self, linodeID:int):
-        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/volumes")
+        """List of volumes in a linode if you have `read` permissions.
+
+        Args:
+            linodeID (int): _description_
+
+        Returns:
+            _type_: _description_
+        """
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{str(linodeID)}/volumes", headers=self.authHeader)
         return handleRequestError(response)
         
     def upgradeLinode(self, linodeID:int, **kwargs):
-        response = requests.get(f"https://api.linode.com/v4/linode/instances/{linodeID}/mutate")
+        response = requests.get(f"https://api.linode.com/v4/linode/instances/{linodeID}/mutate", headers=self.authHeader)
         return handleRequestError(response)
         
     # Backup methods:
